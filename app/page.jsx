@@ -111,7 +111,7 @@ function Navbar({ onMenuOpen }) {
 }
 
 /* ══════════════════════════════════════
-   SIDEBAR MENU OVERLAY (Rotoris Style)
+   SIDEBAR MENU OVERLAY (Signature Style)
    ══════════════════════════════════════ */
 
 function MenuOverlay({ isOpen, onClose }) {
@@ -383,7 +383,7 @@ export default function Home() {
       </section>
 
       {/* ═══════════════════════════════════════════════
-          SECTION 2 — EDITORIAL QUOTE (Rotoris-style)
+          SECTION 2 — EDITORIAL QUOTE (Signature Style)
           ═══════════════════════════════════════════════ */}
       <section className="py-32 md:py-44 px-6">
         <motion.div
