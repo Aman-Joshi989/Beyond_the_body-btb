@@ -84,8 +84,15 @@ export default function AdminLayout({ children }) {
           })}
         </nav>
 
-        {/* Logout */}
-        <div className="p-4 border-t border-white/[0.04]">
+        {/* Logout & Return */}
+        <div className="p-4 border-t border-white/[0.04] space-y-2">
+          <Link
+            href="/"
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/40 hover:text-white hover:bg-white/[0.05] transition-all duration-300"
+          >
+            <span className="text-lg">🏡</span>
+            <span className="tracking-wide">Return to Store</span>
+          </Link>
           <button
             onClick={handleLogout}
             className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm text-white/30 hover:text-red-400 hover:bg-red-400/[0.05] transition-all duration-300"
