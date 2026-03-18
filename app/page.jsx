@@ -119,8 +119,6 @@ function MenuOverlay({ isOpen, onClose }) {
     { name: "Fragrances", href: "/shop" },
     { name: "The Collections", href: "/shop" },
     { name: "The Brand", href: "/about" },
-    { name: "Bespoke Service", href: "/contact" },
-    { name: "Boutique Locator", href: "/contact" },
     { name: "Friends & Partners", href: "/about" },
     { name: "Our Universe", href: "/about" },
   ];
