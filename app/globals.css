@@ -128,6 +128,7 @@ h1, h2, h3, h4, h5, h6 {
   background: linear-gradient(90deg, #D4AF37 0%, #f5e6a3 50%, #D4AF37 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmer 3s linear infinite;
 }
@@ -162,6 +163,7 @@ h1, h2, h3, h4, h5, h6 {
 .text-gradient-gold {
   background: linear-gradient(135deg, #D4AF37, #f5e6a3, #D4AF37);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
