@@ -5,6 +5,7 @@ import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { getProductById, getCategories, initStore, addToCart, getCart } from "../../lib/store";
+import Header from "../../components/Header";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -141,6 +142,8 @@ export default function ProductPage() {
   const handleAddToCart = () => {
     if (!product) return;
     addToCart(product, 1);
+    // Trigger custom event for Header to update
+    window.dispatchEvent(new Event('cartUpdated'));
     setCartCount(getCart().reduce((sum, item) => sum + item.quantity, 0));
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
@@ -172,18 +175,7 @@ export default function ProductPage() {
 
   return (
     <div className="bg-[#050505] text-white min-h-screen overflow-x-hidden glow-frame">
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/90 backdrop-blur-2xl border-b border-white/[0.04]">
-        <div className="max-w-[1400px] mx-auto flex items-center justify-between px-6 md:px-12 py-4">
-          <Link href="/shop" className="text-white/40 hover:text-white transition-colors text-[11px] tracking-[0.2em] uppercase flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
-            </svg>
-            Shop
-          </Link>
-          <span className="text-[13px] tracking-[0.35em] uppercase font-light text-white/90">Beyond The Body</span>
-          <div className="w-16" />
-        </div>
-      </nav>
+      <Header isTransparent={false} />
 
       <div className="pt-28 pb-24 px-6 md:px-12 max-w-[1400px] mx-auto">
         <div className="grid md:grid-cols-2 gap-12 md:gap-20 items-start">

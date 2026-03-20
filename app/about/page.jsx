@@ -3,9 +3,12 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 
+import Header from "../components/Header";
+
 export default function About() {
   return (
     <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center px-6 py-24 text-center">
+      <Header isTransparent={false} />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

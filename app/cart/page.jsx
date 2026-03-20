@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getCart, removeFromCart, updateCartQuantity, clearCart, initStore } from "../lib/store";
+import Header from "../components/Header";
 
 export default function CartPage() {
   const [items, setItems] = useState([]);
@@ -19,11 +20,13 @@ export default function CartPage() {
 
   const handleRemove = (id) => {
     removeFromCart(id);
+    window.dispatchEvent(new Event('cartUpdated'));
     refresh();
   };
 
   const handleQty = (id, q) => {
     updateCartQuantity(id, q);
+    window.dispatchEvent(new Event('cartUpdated'));
     refresh();
   };
 
@@ -31,6 +34,7 @@ export default function CartPage() {
     setIsCheckingOut(true);
     setTimeout(() => {
       clearCart();
+      window.dispatchEvent(new Event('cartUpdated'));
       setIsCheckingOut(false);
       setOrderComplete(true);
     }, 2500);
@@ -65,18 +69,7 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-[#D4AF37]/30 glow-frame">
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/95 backdrop-blur-2xl border-b border-white/[0.04]">
-        <div className="max-w-[1400px] mx-auto flex items-center justify-between px-6 md:px-12 py-5">
-          <Link href="/shop" className="text-white/40 hover:text-white transition-colors text-[11px] tracking-[0.2em] uppercase flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
-            </svg>
-            Continue Browsing
-          </Link>
-          <span className="text-[14px] tracking-[0.4em] uppercase font-light text-white/90">Your Atelier Selection</span>
-          <div className="w-20" />
-        </div>
-      </nav>
+      <Header isTransparent={false} />
 
       <div className="pt-32 pb-24 px-6 md:px-12 max-w-[1200px] mx-auto">
         {items.length === 0 ? (

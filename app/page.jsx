@@ -53,170 +53,7 @@ const slideFromRight = {
   },
 };
 
-/* ══════════════════════════════════════
-   STICKY NAVBAR
-   ══════════════════════════════════════ */
-
-function Navbar({ onMenuOpen }) {
-  const [scrolled, setScrolled] = useState(false);
-  useEffect(() => {
-    const h = () => setScrolled(window.scrollY > 80);
-    window.addEventListener("scroll", h);
-    return () => window.removeEventListener("scroll", h);
-  }, []);
-
-  return (
-    <motion.nav
-      initial={{ y: -100 }}
-      animate={{ y: 0 }}
-      transition={{ duration: 0.8, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-700 ${
-        scrolled
-          ? "bg-[#050505]/95 backdrop-blur-2xl border-b border-white/[0.04] py-3"
-          : "bg-transparent py-5"
-      }`}
-    >
-      <div className="max-w-[1400px] mx-auto flex items-center justify-between px-6 md:px-12">
-        <button 
-          onClick={onMenuOpen}
-          className="text-[10px] md:text-[11px] tracking-[0.3em] uppercase text-white/50 hover:text-[#D4AF37] transition-all duration-500 flex items-center gap-3 group"
-        >
-          <div className="flex flex-col gap-1 w-5">
-            <div className="h-[1px] w-full bg-current transition-all group-hover:w-full" />
-            <div className="h-[1px] w-8/12 bg-current transition-all group-hover:w-full" />
-          </div>
-          <span className="hidden sm:inline">Menu</span>
-        </button>
-        
-        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity duration-500 md:absolute md:left-1/2 md:-translate-x-1/2">
-          <img
-            src="/BTB-Round-Icon-R-1.jpg"
-            alt="BTB"
-            className={`rounded-full transition-all duration-500 ${scrolled ? 'w-8 h-8' : 'w-10 h-10'}`}
-          />
-          <span className="text-[13px] md:text-[15px] tracking-[0.35em] uppercase font-light text-white/90 hidden sm:inline">
-            Beyond The Body
-          </span>
-        </Link>
-        
-        <Link
-          href="/shop"
-          className="text-[10px] md:text-[11px] tracking-[0.2em] uppercase text-white/80 border border-white/20 px-5 py-2 rounded-full hover:bg-white hover:text-[#050505] transition-all duration-500"
-        >
-          Shop Now
-        </Link>
-      </div>
-    </motion.nav>
-  );
-}
-
-/* ══════════════════════════════════════
-   SIDEBAR MENU OVERLAY (Signature Style)
-   ══════════════════════════════════════ */
-
-function MenuOverlay({ isOpen, onClose }) {
-  const categories = [
-    { name: "Fragrances", href: "/shop" },
-    { name: "The Collections", href: "/shop" },
-    { name: "The Brand", href: "/about" },
-    { name: "Friends & Partners", href: "/about" },
-    { name: "Our Universe", href: "/about" },
-  ];
-
-  const utilities = [
-    { name: "Sign In", href: "/admin" },
-    { name: "Contact", href: "/contact" },
-    { name: "Wishlist", href: "/wishlist" },
-    { name: "Track Orders", href: "/orders" },
-  ];
-
-  return (
-    <AnimatePresence>
-      {isOpen && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-[#050505]/80 backdrop-blur-md z-[60]"
-          />
-          <motion.div
-            initial={{ x: "-100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "-100%" }}
-            transition={{ type: "spring", damping: 30, stiffness: 200 }}
-            className="fixed inset-y-0 left-0 w-full md:w-[480px] bg-[#0A0A0A] z-[70] shadow-2xl border-r border-white/[0.05] p-8 md:p-12 flex flex-col"
-          >
-            <button 
-              onClick={onClose}
-              className="absolute top-8 right-8 text-white/40 hover:text-white transition-colors"
-            >
-              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-
-            <div className="mt-12 space-y-8 flex-1 overflow-y-auto pr-4 scrollbar-hide">
-              <nav className="space-y-4">
-                {categories.map((cat, i) => (
-                  <motion.div
-                    key={cat.name}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.1 + i * 0.05 }}
-                  >
-                    <Link 
-                      href={cat.href}
-                      onClick={onClose}
-                      className="text-2xl md:text-3xl font-light tracking-wide hover:text-[#D4AF37] transition-all duration-300 block py-1"
-                    >
-                      {cat.name}
-                    </Link>
-                  </motion.div>
-                ))}
-              </nav>
-
-              <div className="pt-8 border-t border-white/[0.05] space-y-4">
-                <p className="text-[10px] tracking-[0.3em] uppercase text-white/20 mb-4">Account & Support</p>
-                <div className="grid grid-cols-2 gap-y-3 gap-x-8">
-                  {utilities.map((item, i) => (
-                    <motion.div
-                      key={item.name}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 0.5 + i * 0.05 }}
-                    >
-                      <Link 
-                        href={item.href}
-                        onClick={onClose}
-                        className="text-[12px] tracking-[0.15em] uppercase text-white/50 hover:text-[#D4AF37] transition-colors"
-                      >
-                        {item.name}
-                      </Link>
-                    </motion.div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-12 mt-auto border-t border-white/[0.05] flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-xl">🇮🇳</span>
-                <span className="text-[11px] tracking-[0.2em] uppercase text-white/40">IN / English</span>
-              </div>
-              <img src="/BTB-Round-Icon-R-1.jpg" alt="BTB" className="w-8 h-8 opacity-20" />
-            </div>
-
-            <p className="mt-8 text-[9px] tracking-[0.3em] uppercase text-white/10 text-center">
-              Beyond The Body © 2026 — Private Collection
-            </p>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
-  );
-}
+import Header from "./components/Header";
 
 /* ══════════════════════════════════════
    STATIC DATA (gallery)
@@ -355,6 +192,7 @@ export default function Home() {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [settings, setSettings] = useState(null);
+  const [isMounted, setIsMounted] = useState(false);
 
   const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
@@ -362,6 +200,7 @@ export default function Home() {
   const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
 
   useEffect(() => {
+    setIsMounted(true);
     initStore();
     const allProducts = getProducts();
     const featured = allProducts.filter(p => p.isHero);
@@ -378,64 +217,93 @@ export default function Home() {
 
   return (
     <main className="bg-[#050505] text-white selection:bg-[#D4AF37] selection:text-black">
-      <Navbar />
+      <Header />
 
       <section ref={heroRef} className="relative h-[110vh] min-h-[700px] flex items-center justify-center overflow-hidden">
-        <motion.div 
-          key={settings?.bgImage}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          style={{ scale: bgScale, opacity: heroOpacity }}
-          className="absolute inset-[-10%]" 
-        >
-          <img
-            src={settings?.bgImage || "/img-4.jpg"}
-            alt="Beyond The Body"
-            className="w-full h-full object-cover filter brightness-[0.5] saturate-[0.6]"
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-transparent to-[#050505]" />
-          <div className="absolute inset-0 bg-black/20" />
-        </motion.div>
+        {isMounted ? (
+          <motion.div 
+            key={settings?.bgImage}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            style={{ scale: bgScale, opacity: heroOpacity }}
+            className="absolute inset-[-10%]" 
+          >
+            <img
+              src={settings?.bgImage || "/img-4.jpg"}
+              alt="Beyond The Body"
+              className="w-full h-full object-cover filter brightness-[0.5] saturate-[0.6]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-transparent to-[#050505]" />
+            <div className="absolute inset-0 bg-black/20" />
+          </motion.div>
+        ) : (
+          <div className="absolute inset-[-10%]">
+            <img
+              src="/img-4.jpg"
+              alt="Beyond The Body"
+              className="w-full h-full object-cover filter brightness-[0.5] saturate-[0.6]"
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-transparent to-[#050505]" />
+          </div>
+        )}
 
         <SolarSystemOrbit products={products} settings={settings} />
 
-        <motion.div 
-           className="relative z-50 text-center px-6 max-w-5xl mt-[-20vh]" 
-           style={{ opacity: heroOpacity, y: heroTextY }}
-        >
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.8, delay: 0.5 }} className="mb-8">
-            <div className="flex items-center justify-center gap-6 mb-4">
-               <div className="h-px w-16 bg-gradient-to-r from-transparent to-[#D4AF37]/60" />
-               <span className="text-[12px] md:text-[13px] tracking-[0.8em] uppercase text-[#D4AF37] font-medium">The Private Collection</span>
-               <div className="h-px w-16 bg-gradient-to-l from-transparent to-[#D4AF37]/60" />
+        {isMounted ? (
+          <motion.div 
+             className="relative z-50 text-center px-6 max-w-5xl mt-[-20vh]" 
+             style={{ opacity: heroOpacity, y: heroTextY }}
+          >
+            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.8, delay: 0.5 }} className="mb-8">
+              <div className="flex items-center justify-center gap-6 mb-4">
+                 <div className="h-px w-16 bg-gradient-to-r from-transparent to-[#D4AF37]/60" />
+                 <span className="text-[12px] md:text-[13px] tracking-[0.8em] uppercase text-[#D4AF37] font-medium">The Private Collection</span>
+                 <div className="h-px w-16 bg-gradient-to-l from-transparent to-[#D4AF37]/60" />
+              </div>
+            </motion.div>
+
+            <div className="overflow-hidden">
+              <motion.h1 initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }} className="text-[clamp(2rem,7vw,6.5rem)] leading-[0.95] tracking-[-0.03em] mb-4 font-extralight">
+                You don&apos;t <span className="italic font-light text-white/90">wear</span>
+              </motion.h1>
             </div>
-          </motion.div>
 
-          <div className="overflow-hidden">
-            <motion.h1 initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }} className="text-[clamp(2rem,7vw,6.5rem)] leading-[0.95] tracking-[-0.03em] mb-4 font-extralight">
+            <div className="overflow-hidden">
+              <motion.h1 initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1.4, delay: 0.7, ease: [0.16, 1, 0.3, 1] }} className="text-[clamp(2.1rem,7.5vw,7rem)] leading-[0.95] tracking-[-0.03em] font-light">
+                a fragrance.
+              </motion.h1>
+            </div>
+
+            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.4, duration: 1.2, ease: "easeOut" }} className="mt-10 text-[clamp(1rem,1.8vw,1.1rem)] text-white/40 tracking-[0.1em] font-light max-w-lg mx-auto leading-relaxed">
+              A sensory masterpiece designed to reflect the essence of your being. <span className="text-[#D4AF37]/60 italic">You become it.</span>
+            </motion.p>
+
+            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.8, duration: 1 }} className="mt-14">
+              <Link href="/shop" className="group relative inline-flex items-center gap-4 bg-white text-[#050505] px-12 py-5 rounded-full text-[12px] tracking-[0.25em] uppercase font-bold hover:bg-[#D4AF37] hover:text-[#050505] transition-all duration-700 shadow-[0_0_40px_rgba(255,255,255,0.1)] overflow-hidden">
+                <span className="relative z-10">Experience the Collection</span>
+                <svg className="relative z-10 w-4 h-4 transition-transform duration-500 group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                </svg>
+              </Link>
+            </motion.div>
+          </motion.div>
+        ) : (
+          <div className="relative z-50 text-center px-6 max-w-5xl mt-[-20vh] opacity-100">
+             <div className="mb-8">
+              <div className="flex items-center justify-center gap-6 mb-4">
+                 <div className="h-px w-16 bg-gradient-to-r from-transparent to-[#D4AF37]/60" />
+                 <span className="text-[12px] md:text-[13px] tracking-[0.8em] uppercase text-[#D4AF37] font-medium">The Private Collection</span>
+                 <div className="h-px w-16 bg-gradient-to-l from-transparent to-[#D4AF37]/60" />
+              </div>
+            </div>
+            <h1 className="text-[clamp(2rem,7vw,6.5rem)] leading-[0.95] tracking-[-0.03em] mb-4 font-extralight text-white">
               You don&apos;t <span className="italic font-light text-white/90">wear</span>
-            </motion.h1>
-          </div>
-
-          <div className="overflow-hidden">
-            <motion.h1 initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1.4, delay: 0.7, ease: [0.16, 1, 0.3, 1] }} className="text-[clamp(2.1rem,7.5vw,7rem)] leading-[0.95] tracking-[-0.03em] font-light">
+            </h1>
+            <h1 className="text-[clamp(2.1rem,7.5vw,7rem)] leading-[0.95] tracking-[-0.03em] font-light text-white">
               a fragrance.
-            </motion.h1>
+            </h1>
           </div>
-
-          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.4, duration: 1.2, ease: "easeOut" }} className="mt-10 text-[clamp(1rem,1.8vw,1.1rem)] text-white/40 tracking-[0.1em] font-light max-w-lg mx-auto leading-relaxed">
-            A sensory masterpiece designed to reflect the essence of your being. <span className="text-[#D4AF37]/60 italic">You become it.</span>
-          </motion.p>
-
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.8, duration: 1 }} className="mt-14">
-            <Link href="/shop" className="group relative inline-flex items-center gap-4 bg-white text-[#050505] px-12 py-5 rounded-full text-[12px] tracking-[0.25em] uppercase font-bold hover:bg-[#D4AF37] hover:text-[#050505] transition-all duration-700 shadow-[0_0_40px_rgba(255,255,255,0.1)] overflow-hidden">
-              <span className="relative z-10">Experience the Collection</span>
-              <svg className="relative z-10 w-4 h-4 transition-transform duration-500 group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-              </svg>
-            </Link>
-          </motion.div>
-        </motion.div>
+        )}
 
         <motion.div initial={{ scaleY: 0, opacity: 0 }} animate={{ scaleY: 1, opacity: 0.3 }} transition={{ delay: 2.5, duration: 1.5 }} className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center origin-top">
           <motion.div animate={{ y: [0, 40, 0], opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }} className="w-[1px] h-20 bg-gradient-to-b from-[#D4AF37] to-transparent" />

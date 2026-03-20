@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getProducts, getCategories, initStore } from "../lib/store";
 
+import Header from "../components/Header";
+
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.6, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] } }),
@@ -30,19 +32,7 @@ export default function ShopPage() {
 
   return (
     <div className="min-h-screen bg-[#050505] text-white">
-      {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#050505]/90 backdrop-blur-2xl border-b border-white/[0.04]">
-        <div className="max-w-[1400px] mx-auto flex items-center justify-between px-6 md:px-12 py-4">
-          <Link href="/" className="text-white/40 hover:text-white transition-colors text-[11px] tracking-[0.2em] uppercase flex items-center gap-2">
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 19l-7-7 7-7" />
-            </svg>
-            Home
-          </Link>
-          <span className="text-[13px] tracking-[0.35em] uppercase font-light text-white/90">Shop</span>
-          <div className="w-16" />
-        </div>
-      </nav>
+      <Header isTransparent={false} />
 
       <div className="pt-28 pb-24 px-6 md:px-12 max-w-[1400px] mx-auto">
         {/* Header */}
