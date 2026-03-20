@@ -14,10 +14,20 @@ const KEYS = {
   ORDERS: "btb_orders",
   USERS: "btb_users",
   AUTH: "btb_auth",
+  HERO: "btb_hero_settings",
+  CART: "btb_cart",
   VERSION: "btb_store_version",
 };
 
 /* ─── Default Data ─── */
+const DEFAULT_HERO_SETTINGS = {
+  bgImage: "/img-4.jpg",
+  centerpiece: "box", // 'logo' or 'box'
+  orbitSpeed: 20,     // seconds for full rotation
+  orbitRadius: 1,     // multiplier
+  showParticles: true,
+  parallaxIntensity: 1
+};
 
 const DEFAULT_CATEGORIES = [
   { id: "sig", name: "Signature", description: "Core everyday fragrances" },
@@ -33,7 +43,7 @@ const DEFAULT_PRODUCTS = [
     notes: "Aquatic · Bergamot · Sandalwood", topNote: "Bergamot", heartNote: "Sea Breeze", baseNote: "Sandalwood",
     img: "/bottle-suave.png",
     images: ["/bottle-suave.png", "/Bottle-Labels-1.jpg", "/img-5.jpg", "/img-15.jpg", "/box.jpg", "/img-9.jpg", "/BTB-Side-A-1.jpg"],
-    stock: 50, longevity: 78, sillage: 70, volume: "100ml",
+    stock: 50, longevity: 78, sillage: 70, volume: "100ml", isHero: true,
   },
   {
     id: "p2", name: "Heartthrob", categoryId: "int", price: 5499,
@@ -41,7 +51,7 @@ const DEFAULT_PRODUCTS = [
     notes: "Spicy · Amber · Vanilla", topNote: "Pink Pepper", heartNote: "Amber", baseNote: "Vanilla",
     img: "/bottle-heartthrob.png",
     images: ["/bottle-heartthrob.png", "/Bottle-Labels-2.jpg", "/img-2.jpg", "/img-7.jpg", "/box-open.jpg", "/img-8.jpg", "/BTB-Side-B-1.jpg"],
-    stock: 35, longevity: 85, sillage: 80, volume: "100ml",
+    stock: 35, longevity: 85, sillage: 80, volume: "100ml", isHero: true,
   },
   {
     id: "p3", name: "Don Amour", categoryId: "pre", price: 6999,
@@ -49,7 +59,7 @@ const DEFAULT_PRODUCTS = [
     notes: "Oud · Rose · Saffron", topNote: "Saffron", heartNote: "Rose", baseNote: "Oud",
     img: "/bottle-don-amour.png",
     images: ["/bottle-don-amour.png", "/Bottle-Labels-3.jpg", "/img-3.jpg", "/img-13.jpg", "/img-15.jpg", "/img-7.jpg", "/BTB-Packaging-Design-3.jpg"],
-    stock: 20, longevity: 92, sillage: 88, volume: "100ml",
+    stock: 20, longevity: 92, sillage: 88, volume: "100ml", isHero: true,
   },
   {
     id: "p4", name: "Mon Amour", categoryId: "sig", price: 5999,
@@ -116,6 +126,8 @@ export function initStore() {
     set(KEYS.CATEGORIES, DEFAULT_CATEGORIES);
     set(KEYS.ORDERS, DEFAULT_ORDERS);
     set(KEYS.USERS, DEFAULT_USERS);
+    set(KEYS.HERO, DEFAULT_HERO_SETTINGS);
+    set(KEYS.CART, []);
     localStorage.setItem(KEYS.VERSION, STORE_VERSION);
     return;
   }
@@ -123,6 +135,8 @@ export function initStore() {
   if (!localStorage.getItem(KEYS.CATEGORIES)) set(KEYS.CATEGORIES, DEFAULT_CATEGORIES);
   if (!localStorage.getItem(KEYS.ORDERS)) set(KEYS.ORDERS, DEFAULT_ORDERS);
   if (!localStorage.getItem(KEYS.USERS)) set(KEYS.USERS, DEFAULT_USERS);
+  if (!localStorage.getItem(KEYS.HERO)) set(KEYS.HERO, DEFAULT_HERO_SETTINGS);
+  if (!localStorage.getItem(KEYS.CART)) set(KEYS.CART, []);
 }
 
 /* ═══════════ CATEGORIES ═══════════ */
@@ -219,6 +233,17 @@ export function isLoggedIn() {
   return get(KEYS.AUTH, { loggedIn: false }).loggedIn;
 }
 
+/* ═══════════ HERO SETTINGS ═══════════ */
+
+export function getHeroSettings() {
+  return get(KEYS.HERO, DEFAULT_HERO_SETTINGS);
+}
+
+export function updateHeroSettings(updates) {
+  const current = getHeroSettings();
+  set(KEYS.HERO, { ...current, ...updates });
+}
+
 /* ═══════════ STATS ═══════════ */
 
 export function getStats() {
@@ -236,6 +261,47 @@ export function getStats() {
     totalRevenue,
     totalUsers: users.filter((u) => u.role !== "admin").length,
     pendingOrders,
-    lowStock,
   };
+}
+
+/* ════════════ CART ════════════ */
+
+export function getCart() {
+  return get(KEYS.CART, []);
+}
+
+export function addToCart(product, quantity = 1) {
+  const cart = getCart();
+  const q = typeof quantity === 'string' ? parseInt(quantity) : quantity;
+  const existing = cart.find(item => item.id === product.id);
+  
+  if (existing) {
+    const updated = cart.map(item => 
+      item.id === product.id ? { ...item, quantity: item.quantity + q } : item
+    );
+    set(KEYS.CART, updated);
+  } else {
+    set(KEYS.CART, [...cart, { ...product, quantity: q }]);
+  }
+}
+
+export function removeFromCart(productId) {
+  const updated = getCart().filter(item => item.id !== productId);
+  set(KEYS.CART, updated);
+}
+
+export function updateCartQuantity(productId, quantity) {
+  const q = typeof quantity === 'string' ? parseInt(quantity) : quantity;
+  if (q < 1) {
+    removeFromCart(productId);
+    return;
+  }
+  const updated = getCart().map(item => 
+    item.id === productId ? { ...item, quantity: q } : item
+  );
+  set(KEYS.CART, updated);
+}
+
+export function clearCart() {
+  set(KEYS.CART, []);
 }

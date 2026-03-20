@@ -8,6 +8,7 @@ import { isLoggedIn, logout, initStore } from "../lib/store";
 const navItems = [
   { label: "Dashboard", href: "/admin/dashboard", icon: "📊" },
   { label: "Products", href: "/admin/products", icon: "🧴" },
+  { label: "Hero Curation", href: "/admin/hero", icon: "✨" },
   { label: "Orders", href: "/admin/orders", icon: "📦" },
   { label: "Users", href: "/admin/users", icon: "👥" },
   { label: "Inventory", href: "/admin/inventory", icon: "📋" },

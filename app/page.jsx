@@ -1,9 +1,9 @@
 "use client";
 
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence, useMotionValue, useSpring, animate } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
-import { getProducts, getCategories, initStore } from "./lib/store";
+import { getProducts, getCategories, initStore, getHeroSettings } from "./lib/store";
 
 /* ══════════════════════════════════════
    ANIMATION VARIANTS
@@ -230,9 +230,109 @@ const galleryImages = [
   'BTB-Side-A-1.jpg', 'BTB-Side-B-1.jpg', 'card-in-place-1.jpg',
 ];
 
-/* ══════════════════════════════════════
-   PARALLAX IMAGE COMPONENT
-   ══════════════════════════════════════ */
+/* ═══════════════════════════════════════════════
+   SUB-COMPONENT: SolarSystemOrbit
+   ═══════════════════════════════════════════════ */
+function SolarSystemOrbit({ products, settings }) {
+  const [rotation, setRotation] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+
+  const baseSpeed = settings?.orbitSpeed || 25;
+  const radiusMultiplier = settings?.orbitRadius || 1;
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+
+    const controls = animate(0, 360, {
+      duration: baseSpeed,
+      repeat: Infinity,
+      ease: "linear",
+      onUpdate: (latest) => setRotation(latest),
+    });
+    return () => {
+      controls.stop();
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [baseSpeed]);
+
+  return (
+    <div className="absolute inset-0 z-20 pointer-events-none flex items-center justify-center perspective-[2000px]">
+      <motion.div 
+        animate={{ scale: [1, 1.02, 1], y: [0, -5, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+        className="relative z-10 pointer-events-auto"
+      >
+        <div className="absolute inset-0 bg-[#D4AF37]/5 blur-[100px] rounded-full" />
+        {settings?.centerpiece === 'box' ? (
+          <div className="relative w-48 h-48 md:w-[500px] md:h-[400px] flex items-center justify-center">
+             <img src="/hero-box-reveal-v2.png" alt="Packaging" className="w-full h-full object-contain filter brightness-[0.7] contrast-[1.1] mix-blend-screen" />
+          </div>
+        ) : (
+          <div className="relative w-20 h-20 md:w-32 md:h-32 rounded-full overflow-hidden border border-[#D4AF37]/10 shadow-[0_0_50px_rgba(212,175,55,0.2)] bg-black/60 backdrop-blur-xl flex items-center justify-center">
+             <img src="/BTB-Logo-+-Icon-R-1.jpg" alt="Logo" className="w-full h-full object-cover opacity-60" />
+          </div>
+        )}
+      </motion.div>
+
+      {products.map((product, index) => {
+        const step = (360 / products.length);
+        const currentAngle = rotation + (index * step);
+        const angleRad = (currentAngle * Math.PI) / 180;
+        
+        const baseRadiusX = 450 * radiusMultiplier;
+        const baseRadiusY = 180 * radiusMultiplier;
+        const orbitX = Math.cos(angleRad) * (isMobile ? 160 : baseRadiusX);
+        const orbitY = Math.sin(angleRad) * (isMobile ? 60 : baseRadiusY);
+        
+        const zValue = Math.sin(angleRad) * 400;
+        const scale = 0.6 + (Math.sin(angleRad) + 1) * 0.2; 
+        const opacity = 0.4 + (Math.sin(angleRad) + 1) * 0.3;
+        const blur = (1 - (Math.sin(angleRad) + 1) / 2) * 4;
+        const zIndex = Math.round(zValue) + 100;
+
+        return (
+          <Planet 
+            key={product.id} 
+            product={product} 
+            orbitX={orbitX} 
+            orbitY={orbitY} 
+            zValue={zValue} 
+            scale={scale} 
+            opacity={opacity}
+            blur={blur}
+            zIndex={zIndex}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function Planet({ product, orbitX, orbitY, zValue, scale, opacity, blur, zIndex }) {
+  return (
+    <motion.div
+      animate={{ x: orbitX, y: orbitY, z: zValue, scale, opacity }}
+      transition={{ type: "spring", damping: 20, stiffness: 40, mass: 0.5 }}
+      style={{ zIndex, filter: `blur(${blur}px)` }}
+      className="absolute pointer-events-auto cursor-pointer group"
+    >
+      <Link href={`/product/${product.id}`}>
+        <div className="relative w-28 h-40 md:w-52 md:h-72 group-hover:scale-110 transition-transform duration-700">
+           <div className="absolute inset-0 bg-white/[0.03] backdrop-blur-xl rounded-[2.5rem] border border-white/10 group-hover:border-[#D4AF37]/40 group-hover:bg-white/[0.08] transition-all duration-500 shadow-2xl" />
+           <div className="absolute -top-16 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-all duration-500 text-center whitespace-nowrap">
+              <span className="text-[10px] tracking-[0.4em] uppercase text-[#D4AF37] block font-bold">Signature</span>
+              <span className="text-xl font-light text-white tracking-widest uppercase">{product.name}</span>
+           </div>
+           <div className="relative w-full h-full p-6">
+              <img src={product.img} alt={product.name} className="w-full h-full object-contain filter drop-shadow-[0_40px_60px_rgba(0,0,0,0.8)] transition-all duration-1000 group-hover:scale-110 group-hover:rotate-6" />
+           </div>
+        </div>
+      </Link>
+    </motion.div>
+  );
+}
 
 function ParallaxImage({ src, alt, className }) {
   const ref = useRef(null);
@@ -241,124 +341,94 @@ function ParallaxImage({ src, alt, className }) {
 
   return (
     <div ref={ref} className={`overflow-hidden relative ${className}`}>
-      <motion.img
-        src={src}
-        alt={alt}
-        style={{ y }}
-        className="w-full h-[120%] object-cover absolute top-[-10%] left-0"
-      />
+      <motion.img src={src} alt={alt} style={{ y }} className="w-full h-[120%] object-cover absolute top-[-10%] left-0" />
     </div>
   );
 }
 
-/* ══════════════════════════════════════
+/* ═══════════════════════════════════════════════
    MAIN PAGE
-   ══════════════════════════════════════ */
+   ═══════════════════════════════════════════════ */
 
 export default function Home() {
+  const heroRef = useRef(null);
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [settings, setSettings] = useState(null);
+
+  const { scrollYProgress } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+  const heroTextY = useTransform(scrollYProgress, [0, 0.8], [0, 100]);
+  const bgScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
 
   useEffect(() => {
     initStore();
-    setProducts(getProducts().slice(0, 5));
+    const allProducts = getProducts();
+    const featured = allProducts.filter(p => p.isHero);
+    setProducts(featured.length > 0 ? featured : allProducts.slice(0, 3));
     setCategories(getCategories());
+    setSettings(getHeroSettings());
+
+    const handleSync = () => setSettings(getHeroSettings());
+    window.addEventListener('storage', handleSync);
+    return () => window.removeEventListener('storage', handleSync);
   }, []);
 
   const catMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
 
-  const heroRef = useRef(null);
-  const { scrollYProgress: heroScroll } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const heroOpacity = useTransform(heroScroll, [0, 0.8], [1, 0]);
-  const heroScale = useTransform(heroScroll, [0, 0.8], [1, 1.1]);
-  const heroTextY = useTransform(heroScroll, [0, 0.5], [0, 100]);
-
   return (
-    <main className="bg-[#050505] text-white overflow-x-hidden glow-frame">
-      <Navbar onMenuOpen={() => setIsMenuOpen(true)} />
-      <MenuOverlay isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
+    <main className="bg-[#050505] text-white selection:bg-[#D4AF37] selection:text-black">
+      <Navbar />
 
-      {/* ═══════════════════════════════════════════════
-          SECTION 1 — CINEMATIC HERO (Premium Redesign)
-          ═══════════════════════════════════════════════ */}
-      <section ref={heroRef} className="relative h-[110vh] flex items-center justify-center overflow-hidden">
-        {/* Parallax BG Image */}
-        <motion.div className="absolute inset-0" style={{ scale: heroScale }}>
+      <section ref={heroRef} className="relative h-[110vh] min-h-[700px] flex items-center justify-center overflow-hidden">
+        <motion.div 
+          key={settings?.bgImage}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          style={{ scale: bgScale, opacity: heroOpacity }}
+          className="absolute inset-[-10%]" 
+        >
           <img
-            src="/img-4.jpg"
+            src={settings?.bgImage || "/img-4.jpg"}
             alt="Beyond The Body"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover filter brightness-[0.5] saturate-[0.6]"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/40 via-[#050505]/20 to-[#050505]" />
-          <div className="absolute inset-0 bg-black/40 xl:bg-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/80 via-transparent to-[#050505]" />
+          <div className="absolute inset-0 bg-black/20" />
         </motion.div>
 
-        {/* Hero Content */}
-        <motion.div className="relative z-10 text-center px-6 max-w-5xl" style={{ opacity: heroOpacity, y: heroTextY }}>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-            className="mb-8"
-          >
-            <div className="inline-block relative">
-               <div className="absolute -inset-4 bg-[#D4AF37]/5 blur-3xl rounded-full" />
-               <img
-                 src="/BTB-Logo-+-Icon-R-1.jpg"
-                 alt="Beyond The Body"
-                 className="relative w-28 h-28 md:w-36 md:h-36 rounded-3xl mx-auto mb-6 shadow-2xl shadow-black/80"
-               />
-            </div>
-            <div className="flex items-center justify-center gap-4 mb-2">
-               <div className="h-px w-12 bg-gradient-to-r from-transparent to-[#D4AF37]/40" />
-               <span className="text-[11px] md:text-[12px] tracking-[0.6em] uppercase text-[#D4AF37]/90 font-light">
-                 A Fragrance House
-               </span>
-               <div className="h-px w-12 bg-gradient-to-l from-transparent to-[#D4AF37]/40" />
+        <SolarSystemOrbit products={products} settings={settings} />
+
+        <motion.div 
+           className="relative z-50 text-center px-6 max-w-5xl mt-[-20vh]" 
+           style={{ opacity: heroOpacity, y: heroTextY }}
+        >
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.8, delay: 0.5 }} className="mb-8">
+            <div className="flex items-center justify-center gap-6 mb-4">
+               <div className="h-px w-16 bg-gradient-to-r from-transparent to-[#D4AF37]/60" />
+               <span className="text-[12px] md:text-[13px] tracking-[0.8em] uppercase text-[#D4AF37] font-medium">The Private Collection</span>
+               <div className="h-px w-16 bg-gradient-to-l from-transparent to-[#D4AF37]/60" />
             </div>
           </motion.div>
 
           <div className="overflow-hidden">
-            <motion.h1
-              initial={{ y: "100%", opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 1.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }}
-              className="text-[clamp(2rem,7vw,6.5rem)] leading-[0.95] tracking-[-0.03em] mb-4 font-extralight"
-            >
+            <motion.h1 initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1.4, delay: 0.5, ease: [0.16, 1, 0.3, 1] }} className="text-[clamp(2rem,7vw,6.5rem)] leading-[0.95] tracking-[-0.03em] mb-4 font-extralight">
               You don&apos;t <span className="italic font-light text-white/90">wear</span>
             </motion.h1>
           </div>
 
           <div className="overflow-hidden">
-            <motion.h1
-              initial={{ y: "100%", opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ duration: 1.4, delay: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="text-[clamp(2.1rem,7.5vw,7rem)] leading-[0.95] tracking-[-0.03em] font-light"
-            >
+            <motion.h1 initial={{ y: "100%", opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ duration: 1.4, delay: 0.7, ease: [0.16, 1, 0.3, 1] }} className="text-[clamp(2.1rem,7.5vw,7rem)] leading-[0.95] tracking-[-0.03em] font-light">
               a fragrance.
             </motion.h1>
           </div>
 
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.4, duration: 1.2, ease: "easeOut" }}
-            className="mt-10 text-[clamp(1rem,1.8vw,1.1rem)] text-white/40 tracking-[0.1em] font-light max-w-lg mx-auto leading-relaxed"
-          >
+          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.4, duration: 1.2, ease: "easeOut" }} className="mt-10 text-[clamp(1rem,1.8vw,1.1rem)] text-white/40 tracking-[0.1em] font-light max-w-lg mx-auto leading-relaxed">
             A sensory masterpiece designed to reflect the essence of your being. <span className="text-[#D4AF37]/60 italic">You become it.</span>
           </motion.p>
 
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.8, duration: 1 }}
-          >
-            <Link
-              href="/shop"
-              className="group relative inline-flex items-center gap-4 mt-14 bg-white text-[#050505] px-12 py-5 rounded-full text-[12px] tracking-[0.25em] uppercase font-bold hover:bg-[#D4AF37] hover:text-[#050505] transition-all duration-700 shadow-[0_0_40px_rgba(255,255,255,0.1)] overflow-hidden"
-            >
+          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.8, duration: 1 }} className="mt-14">
+            <Link href="/shop" className="group relative inline-flex items-center gap-4 bg-white text-[#050505] px-12 py-5 rounded-full text-[12px] tracking-[0.25em] uppercase font-bold hover:bg-[#D4AF37] hover:text-[#050505] transition-all duration-700 shadow-[0_0_40px_rgba(255,255,255,0.1)] overflow-hidden">
               <span className="relative z-10">Experience the Collection</span>
               <svg className="relative z-10 w-4 h-4 transition-transform duration-500 group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -367,18 +437,8 @@ export default function Home() {
           </motion.div>
         </motion.div>
 
-        {/* Cinematic line indicator (Clean) */}
-        <motion.div
-          initial={{ scaleY: 0, opacity: 0 }}
-          animate={{ scaleY: 1, opacity: 0.3 }}
-          transition={{ delay: 2.5, duration: 1.5 }}
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center origin-top"
-        >
-          <motion.div
-            animate={{ y: [0, 40, 0], opacity: [0, 1, 0] }}
-            transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-            className="w-[1px] h-20 bg-gradient-to-b from-[#D4AF37] to-transparent"
-          />
+        <motion.div initial={{ scaleY: 0, opacity: 0 }} animate={{ scaleY: 1, opacity: 0.3 }} transition={{ delay: 2.5, duration: 1.5 }} className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center origin-top">
+          <motion.div animate={{ y: [0, 40, 0], opacity: [0, 1, 0] }} transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }} className="w-[1px] h-20 bg-gradient-to-b from-[#D4AF37] to-transparent" />
         </motion.div>
       </section>
 

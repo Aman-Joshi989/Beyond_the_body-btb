@@ -4,7 +4,7 @@ import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion"
 import { useRef, useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { getProductById, getCategories, initStore } from "../../lib/store";
+import { getProductById, getCategories, initStore, addToCart, getCart } from "../../lib/store";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 40 },
@@ -123,6 +123,8 @@ export default function ProductPage() {
   const params = useParams();
   const [product, setProduct] = useState(null);
   const [catName, setCatName] = useState("");
+  const [cartCount, setCartCount] = useState(0);
+  const [added, setAdded] = useState(false);
 
   useEffect(() => {
     initStore();
@@ -133,7 +135,16 @@ export default function ProductPage() {
       const cat = cats.find((c) => c.id === p.categoryId);
       setCatName(cat?.name || "");
     }
+    setCartCount(getCart().reduce((sum, item) => sum + item.quantity, 0));
   }, [params.id]);
+
+  const handleAddToCart = () => {
+    if (!product) return;
+    addToCart(product, 1);
+    setCartCount(getCart().reduce((sum, item) => sum + item.quantity, 0));
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2000);
+  };
 
   if (!product) {
     return (
@@ -204,11 +215,28 @@ export default function ProductPage() {
             </motion.p>
 
             <motion.div variants={fadeUp} custom={4}>
-              <button className="w-full md:w-auto bg-[#D4AF37] text-[#050505] px-14 py-4 rounded-full text-[13px] tracking-[0.2em] uppercase font-semibold hover:bg-[#e8c44a] hover:scale-[1.02] transition-all duration-500 flex items-center justify-center gap-3 animate-pulse-glow">
-                Add to Cart
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
+              <button 
+                onClick={handleAddToCart}
+                disabled={added}
+                className={`w-full md:w-auto px-14 py-4 rounded-full text-[13px] tracking-[0.2em] uppercase font-semibold transition-all duration-500 flex items-center justify-center gap-3 shadow-xl ${
+                  added ? "bg-green-500/20 text-green-400 border border-green-500/30" : "bg-[#D4AF37] text-[#050505] hover:bg-[#e8c44a] hover:scale-[1.02] animate-pulse-glow"
+                }`}
+              >
+                {added ? (
+                  <>
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                    Added to Atelier
+                  </>
+                ) : (
+                  <>
+                    Add to Cart
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                    </svg>
+                  </>
+                )}
               </button>
             </motion.div>
 
@@ -266,6 +294,33 @@ export default function ProductPage() {
           </motion.div>
         </div>
       </div>
+
+      {/* Floating Cart Indicator */}
+      <AnimatePresence>
+        {cartCount > 0 && (
+          <motion.div
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            className="fixed bottom-8 right-8 z-[60]"
+          >
+            <Link href="/cart" className="glass p-5 rounded-full flex items-center gap-4 border border-white/10 hover:border-[#D4AF37]/50 transition-all group shadow-2xl backdrop-blur-3xl">
+              <div className="relative">
+                <svg className="w-6 h-6 text-[#D4AF37]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <span className="absolute -top-2 -right-2 bg-white text-black text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center ring-4 ring-[#050505]">
+                  {cartCount}
+                </span>
+              </div>
+              <div className="hidden md:block pr-2">
+                <p className="text-[10px] tracking-widest text-white/40 uppercase mb-0.5">Your Selection</p>
+                <p className="text-sm font-light text-white/90">View Atelier</p>
+              </div>
+            </Link>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -11,6 +11,7 @@ const EMPTY_PRODUCT = {
   name: "", categoryId: "", price: "", description: "",
   notes: "", topNote: "", heartNote: "", baseNote: "",
   img: "/img-1.jpg", stock: 0, longevity: 50, sillage: 50, volume: "100ml",
+  isHero: false,
 };
 
 export default function ProductsPage() {
@@ -23,6 +24,7 @@ export default function ProductsPage() {
   const [form, setForm] = useState(EMPTY_PRODUCT);
   const [newCat, setNewCat] = useState({ name: "", description: "" });
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [activeTab, setActiveTab] = useState("identity");
 
   useEffect(() => { initStore(); reload(); }, []);
 
@@ -34,12 +36,14 @@ export default function ProductsPage() {
   function openNewProduct() {
     setEditProduct(null);
     setForm({ ...EMPTY_PRODUCT, categoryId: categories[0]?.id || "" });
+    setActiveTab("identity");
     setShowModal(true);
   }
 
   function openEditProduct(p) {
     setEditProduct(p);
     setForm({ ...p, price: String(p.price) });
+    setActiveTab("identity");
     setShowModal(true);
   }
 
@@ -126,6 +130,7 @@ export default function ProductsPage() {
                 <th className="text-left px-4 py-4 text-[10px] tracking-[0.2em] uppercase text-white/30 font-normal">Category</th>
                 <th className="text-left px-4 py-4 text-[10px] tracking-[0.2em] uppercase text-white/30 font-normal">Price</th>
                 <th className="text-left px-4 py-4 text-[10px] tracking-[0.2em] uppercase text-white/30 font-normal">Stock</th>
+                <th className="text-center px-4 py-4 text-[10px] tracking-[0.2em] uppercase text-white/30 font-normal">Hero</th>
                 <th className="text-right px-6 py-4 text-[10px] tracking-[0.2em] uppercase text-white/30 font-normal">Actions</th>
               </tr>
             </thead>
@@ -154,6 +159,13 @@ export default function ProductsPage() {
                       {p.stock} {p.stock < 15 && "⚠️"}
                     </span>
                   </td>
+                  <td className="px-4 py-4 text-center">
+                    {p.isHero ? (
+                      <span className="text-[#D4AF37] text-xs font-bold tracking-widest uppercase bg-[#D4AF37]/10 px-2 py-1 rounded">Yes</span>
+                    ) : (
+                      <span className="text-white/10 text-xs tracking-widest uppercase">No</span>
+                    )}
+                  </td>
                   <td className="px-6 py-4 text-right">
                     <button onClick={() => openEditProduct(p)} className="text-white/30 hover:text-[#D4AF37] text-sm mr-4 transition-colors">
                       Edit
@@ -179,98 +191,223 @@ export default function ProductsPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4"
             onClick={() => setShowModal(false)}
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
+              initial={{ scale: 0.9, y: 20, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.9, y: 20, opacity: 0 }}
               onClick={(e) => e.stopPropagation()}
-              className="glass rounded-3xl p-6 md:p-8 w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+              className="glass rounded-[2rem] w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-[0_0_100px_rgba(212,175,55,0.15)] border-[#D4AF37]/10"
             >
-              <h3 className="text-lg font-light mb-6">
-                {editProduct ? "Edit Product" : "Add New Product"}
-              </h3>
-
-              <div className="grid md:grid-cols-2 gap-4">
+              {/* Modal Header */}
+              <div className="p-8 border-b border-white/[0.05] flex items-center justify-between bg-white/[0.01]">
                 <div>
-                  <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-1.5">Name</label>
-                  <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
-                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-[#D4AF37]/30 transition-colors" />
+                  <h3 className="text-2xl font-light tracking-tight text-white/90">
+                    {editProduct ? "Refine Product" : "Curate New Arrival"}
+                  </h3>
+                  <p className="text-[10px] tracking-[0.3em] uppercase text-[#D4AF37] mt-1 font-semibold opacity-70">
+                    Beyond The Body • Atelier
+                  </p>
                 </div>
-                <div>
-                  <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-1.5">Category</label>
-                  <select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
-                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-[#D4AF37]/30 transition-colors">
-                    {categories.map((c) => <option key={c.id} value={c.id} className="bg-[#0a0a0a]">{c.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-1.5">Price (₹)</label>
-                  <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })}
-                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-[#D4AF37]/30 transition-colors" />
-                </div>
-                <div>
-                  <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-1.5">Stock</label>
-                  <input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })}
-                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-[#D4AF37]/30 transition-colors" />
-                </div>
-                <div>
-                  <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-1.5">Image Path</label>
-                  <input value={form.img} onChange={(e) => setForm({ ...form, img: e.target.value })}
-                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-[#D4AF37]/30 transition-colors" />
-                </div>
-                <div>
-                  <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-1.5">Volume</label>
-                  <input value={form.volume} onChange={(e) => setForm({ ...form, volume: e.target.value })}
-                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-[#D4AF37]/30 transition-colors" />
-                </div>
-              </div>
-
-              <div className="mt-4">
-                <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-1.5">Description</label>
-                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={2}
-                  className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-[#D4AF37]/30 transition-colors resize-none" />
-              </div>
-
-              <div className="grid grid-cols-3 gap-4 mt-4">
-                <div>
-                  <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-1.5">Top Note</label>
-                  <input value={form.topNote} onChange={(e) => setForm({ ...form, topNote: e.target.value })}
-                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-[#D4AF37]/30 transition-colors" />
-                </div>
-                <div>
-                  <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-1.5">Heart Note</label>
-                  <input value={form.heartNote} onChange={(e) => setForm({ ...form, heartNote: e.target.value })}
-                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-[#D4AF37]/30 transition-colors" />
-                </div>
-                <div>
-                  <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-1.5">Base Note</label>
-                  <input value={form.baseNote} onChange={(e) => setForm({ ...form, baseNote: e.target.value })}
-                    className="w-full bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-2.5 text-white text-sm outline-none focus:border-[#D4AF37]/30 transition-colors" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4 mt-4">
-                <div>
-                  <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-1.5">Longevity ({form.longevity}%)</label>
-                  <input type="range" min="0" max="100" value={form.longevity} onChange={(e) => setForm({ ...form, longevity: e.target.value })}
-                    className="w-full accent-[#D4AF37]" />
-                </div>
-                <div>
-                  <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-1.5">Sillage ({form.sillage}%)</label>
-                  <input type="range" min="0" max="100" value={form.sillage} onChange={(e) => setForm({ ...form, sillage: e.target.value })}
-                    className="w-full accent-[#D4AF37]" />
-                </div>
-              </div>
-
-              <div className="flex gap-3 mt-8">
-                <button onClick={() => setShowModal(false)} className="flex-1 glass py-3 rounded-xl text-sm text-white/40 hover:text-white/60 transition-colors">
-                  Cancel
+                <button onClick={() => setShowModal(false)} className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center text-white/40 hover:text-white hover:border-white/20 transition-all">
+                  ✕
                 </button>
-                <button onClick={handleSave} className="flex-1 bg-[#D4AF37] text-[#050505] py-3 rounded-xl text-sm font-semibold hover:bg-[#e8c44a] transition-colors">
-                  {editProduct ? "Save Changes" : "Add Product"}
+              </div>
+
+              {/* Tab Navigation */}
+              <div className="flex border-b border-white/[0.05] px-8 bg-black/20">
+                {[
+                  { id: 'identity', label: 'Identity' },
+                  { id: 'olfactory', label: 'Scent Profile' },
+                  { id: 'media', label: 'Architecture & Media' }
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`relative py-5 px-6 text-[11px] tracking-[0.2em] uppercase transition-all ${
+                      activeTab === tab.id ? "text-[#D4AF37]" : "text-white/30 hover:text-white/60"
+                    }`}
+                  >
+                    {tab.label}
+                    {activeTab === tab.id && (
+                      <motion.div layoutId="activeTab" className="absolute bottom-0 left-0 right-0 h-px bg-[#D4AF37]" />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* Modal Content */}
+              <div className="flex-1 overflow-y-auto p-8 custom-scrollbar bg-black/10">
+                <AnimatePresence mode="wait">
+                  {activeTab === 'identity' && (
+                    <motion.div 
+                      key="identity"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 10 }}
+                      className="space-y-8"
+                    >
+                      <div className="grid md:grid-cols-2 gap-8">
+                        <div>
+                          <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-2.5 ml-1">Product Name</label>
+                          <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}
+                            className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl px-5 py-3.5 text-white text-base font-light outline-none focus:border-[#D4AF37]/40 focus:bg-white/[0.05] transition-all" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-2.5 ml-1">Collection / Category</label>
+                          <select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })}
+                            className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl px-5 py-3.5 text-white text-base font-light outline-none focus:border-[#D4AF37]/40 focus:bg-white/[0.05] transition-all appearance-none cursor-pointer">
+                            {categories.map((c) => <option key={c.id} value={c.id} className="bg-[#0a0a0a] py-4">{c.name}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-2.5 ml-1">Price (₹)</label>
+                          <input type="number" value={form.price} onChange={(e) => setForm({ ...form, price: e.target.value })}
+                            className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl px-5 py-3.5 text-white text-base font-light outline-none focus:border-[#D4AF37]/40 focus:bg-white/[0.05] transition-all" />
+                        </div>
+                        <div>
+                          <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-2.5 ml-1">Stock Availability</label>
+                          <input type="number" value={form.stock} onChange={(e) => setForm({ ...form, stock: e.target.value })}
+                            className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl px-5 py-3.5 text-white text-base font-light outline-none focus:border-[#D4AF37]/40 focus:bg-white/[0.05] transition-all" />
+                        </div>
+                      </div>
+
+                      <div className="md:col-span-2">
+                        <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-2.5 ml-1">Atmospheric Description</label>
+                        <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4}
+                          className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl px-5 py-4 text-white text-base font-light outline-none focus:border-[#D4AF37]/40 focus:bg-white/[0.05] transition-all resize-none leading-relaxed" />
+                      </div>
+
+                      <div className="p-6 bg-[#D4AF37]/5 rounded-3xl border border-[#D4AF37]/10 flex items-center justify-between">
+                        <div className="flex items-center gap-5">
+                          <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${form.isHero ? 'bg-[#D4AF37]/20 text-[#D4AF37]' : 'bg-white/5 text-white/20'}`}>
+                             ✦
+                          </div>
+                          <div>
+                            <p className="text-sm text-white/80 font-medium">Flagship Hero Curation</p>
+                            <p className="text-[10px] text-white/30 uppercase tracking-[0.1em] mt-0.5">Elevate this product to the main 3D Orbital experience</p>
+                          </div>
+                        </div>
+                        <button 
+                          onClick={() => setForm({ ...form, isHero: !form.isHero })}
+                          className={`w-14 h-7 rounded-full transition-all relative ${form.isHero ? 'bg-[#D4AF37]' : 'bg-white/10'}`}
+                        >
+                          <div className={`absolute top-1 w-5 h-5 rounded-full bg-white shadow-lg transition-all ${form.isHero ? 'left-8' : 'left-1'}`} />
+                        </button>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {activeTab === 'olfactory' && (
+                    <motion.div 
+                      key="olfactory"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 10 }}
+                      className="space-y-10"
+                    >
+                      <div className="grid grid-cols-3 gap-6">
+                        {[
+                          { key: 'topNote', label: 'Top Note', desc: 'Initial Impression' },
+                          { key: 'heartNote', label: 'Heart Note', desc: 'Signature Soul' },
+                          { key: 'baseNote', label: 'Base Note', desc: 'Lasting Echo' }
+                        ].map((note) => (
+                          <div key={note.key}>
+                            <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-2.5 ml-1">{note.label}</label>
+                            <input value={form[note.key]} onChange={(e) => setForm({ ...form, [note.key]: e.target.value })}
+                              placeholder={note.desc}
+                              className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl px-5 py-3.5 text-white text-sm font-light outline-none focus:border-[#D4AF37]/40 transition-all" />
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="space-y-8 mt-10 p-8 rounded-[2rem] bg-white/[0.02] border border-white/[0.05]">
+                        <h4 className="text-xs uppercase tracking-[0.4em] text-white/20 text-center mb-8">Performance Metrics</h4>
+                        <div className="grid md:grid-cols-2 gap-12">
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-end">
+                              <label className="text-[10px] tracking-[0.2em] uppercase text-[#D4AF37]">Longevity</label>
+                              <span className="text-xl font-extralight text-white/80">{form.longevity}%</span>
+                            </div>
+                            <input type="range" min="0" max="100" value={form.longevity} onChange={(e) => setForm({ ...form, longevity: e.target.value })}
+                              className="w-full accent-[#D4AF37] h-1 bg-white/10 rounded-lg cursor-pointer transition-all" />
+                            <p className="text-[9px] text-white/20 uppercase tracking-[0.1em]">Time duration on skin</p>
+                          </div>
+                          <div className="space-y-4">
+                            <div className="flex justify-between items-end">
+                              <label className="text-[10px] tracking-[0.2em] uppercase text-[#D4AF37]">Sillage</label>
+                              <span className="text-xl font-extralight text-white/80">{form.sillage}%</span>
+                            </div>
+                            <input type="range" min="0" max="100" value={form.sillage} onChange={(e) => setForm({ ...form, sillage: e.target.value })}
+                              className="w-full accent-[#D4AF37] h-1 bg-white/10 rounded-lg cursor-pointer transition-all" />
+                              <p className="text-[9px] text-white/20 uppercase tracking-[0.1em]">Fragrance trail intensity</p>
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {activeTab === 'media' && (
+                    <motion.div 
+                      key="media"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 10 }}
+                      className="space-y-8"
+                    >
+                      <div className="grid md:grid-cols-3 gap-8 items-start">
+                        <div className="md:col-span-2 space-y-6">
+                          <div>
+                            <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-2.5 ml-1">Asset Path</label>
+                            <input value={form.img} onChange={(e) => setForm({ ...form, img: e.target.value })}
+                              placeholder="/bottles/example.png"
+                              className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl px-5 py-3.5 text-white text-sm outline-none focus:border-[#D4AF37]/40 transition-all font-mono" />
+                            <p className="text-[9px] text-white/20 mt-2 ml-1 italic italic italic">Recommended: 800x1200 Transparent PNG</p>
+                          </div>
+                          <div>
+                            <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-2.5 ml-1">Vessel Volume</label>
+                            <input value={form.volume} onChange={(e) => setForm({ ...form, volume: e.target.value })}
+                              className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl px-5 py-3.5 text-white text-base font-light outline-none focus:border-[#D4AF37]/40 focus:bg-white/[0.05] transition-all" />
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col items-center">
+                          <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-2.5 self-start ml-1">Live Aperture</label>
+                          <div className="w-full aspect-[4/5] bg-white/[0.02] border border-white/10 rounded-[2.5rem] overflow-hidden flex items-center justify-center group relative shadow-inner">
+                            {form.img ? (
+                              <>
+                                <img src={form.img} alt="Preview" className="w-4/5 h-4/5 object-contain filter drop-shadow-[0_20px_40px_rgba(0,0,0,0.5)] group-hover:scale-110 transition-transform duration-1000" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all pointer-events-none" />
+                              </>
+                            ) : (
+                              <div className="text-white/10 text-center">
+                                <div className="text-4xl mb-2">✦</div>
+                                <div className="text-[9px] tracking-widest uppercase">Mirroring Asset</div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+
+              {/* Modal Footer */}
+              <div className="p-8 border-t border-white/[0.05] flex gap-4 bg-black/20">
+                <button 
+                  onClick={() => setShowModal(false)}
+                  className="flex-1 px-8 py-4 rounded-2xl text-[11px] tracking-[0.2em] uppercase text-white/40 hover:text-white hover:bg-white/[0.05] transition-all"
+                >
+                  Discard
+                </button>
+                <button 
+                  onClick={handleSave}
+                  className="flex-[2] bg-white text-black py-4 rounded-2xl text-[11px] tracking-[0.3em] uppercase font-bold hover:bg-[#D4AF37] transition-all shadow-xl active:scale-95 translate-y-0"
+                >
+                  {editProduct ? "Authorize Refinement" : "Confirm Addition"}
                 </button>
               </div>
             </motion.div>
