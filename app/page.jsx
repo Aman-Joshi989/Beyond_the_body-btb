@@ -103,8 +103,8 @@ function SolarSystemOrbit({ products, settings }) {
       >
         <div className="absolute inset-0 bg-[#D4AF37]/5 blur-[100px] rounded-full" />
         {settings?.centerpiece === 'box' ? (
-          <div className="relative w-48 h-48 md:w-[500px] md:h-[400px] flex items-center justify-center">
-             <img src="/hero-box-reveal-v2.png" alt="Packaging" className="w-full h-full object-contain filter brightness-[0.7] contrast-[1.1] mix-blend-screen" />
+          <div className="relative w-[55vw] h-[55vw] max-w-[260px] max-h-[260px] md:max-w-none md:max-h-none md:w-[500px] md:h-[400px] flex items-center justify-center">
+             <img src="/hero-box-reveal.png" alt="Packaging" className="w-full h-full object-contain filter brightness-[0.7] contrast-[1.1] mix-blend-screen" />
           </div>
         ) : (
           <div className="relative w-20 h-20 md:w-32 md:h-32 rounded-full overflow-hidden border border-[#D4AF37]/10 shadow-[0_0_50px_rgba(212,175,55,0.2)] bg-black/60 backdrop-blur-xl flex items-center justify-center">
@@ -120,8 +120,8 @@ function SolarSystemOrbit({ products, settings }) {
         
         const baseRadiusX = 450 * radiusMultiplier;
         const baseRadiusY = 180 * radiusMultiplier;
-        const orbitX = Math.cos(angleRad) * (isMobile ? 160 : baseRadiusX);
-        const orbitY = Math.sin(angleRad) * (isMobile ? 60 : baseRadiusY);
+        const orbitX = Math.cos(angleRad) * (isMobile ? 110 : baseRadiusX);
+        const orbitY = Math.sin(angleRad) * (isMobile ? 40 : baseRadiusY);
         
         const zValue = Math.sin(angleRad) * 400;
         const scale = 0.6 + (Math.sin(angleRad) + 1) * 0.2; 
@@ -216,10 +216,10 @@ export default function Home() {
   const catMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
 
   return (
-    <main className="bg-[#050505] text-white selection:bg-[#D4AF37] selection:text-black">
+    <main className="bg-[#050505] w-full max-w-[100vw] overflow-x-hidden text-white selection:bg-[#D4AF37] selection:text-black">
       <Header />
 
-      <section ref={heroRef} className="relative h-[110vh] min-h-[700px] flex items-center justify-center overflow-hidden">
+      <section ref={heroRef} className="relative h-[100svh] md:h-[110vh] min-h-[600px] md:min-h-[700px] flex items-center justify-center overflow-hidden">
         {isMounted ? (
           <motion.div 
             key={settings?.bgImage}
@@ -251,7 +251,7 @@ export default function Home() {
 
         {isMounted ? (
           <motion.div 
-             className="relative z-50 text-center px-6 max-w-5xl mt-[-20vh]" 
+             className="absolute top-[14vh] md:top-[16vh] left-1/2 -translate-x-1/2 z-50 text-center px-4 w-full max-w-5xl" 
              style={{ opacity: heroOpacity, y: heroTextY }}
           >
             <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.8, delay: 0.5 }} className="mb-8">
@@ -278,17 +278,10 @@ export default function Home() {
               A sensory masterpiece designed to reflect the essence of your being. <span className="text-[#D4AF37]/60 italic">You become it.</span>
             </motion.p>
 
-            <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 1.8, duration: 1 }} className="mt-14">
-              <Link href="/shop" className="group relative inline-flex items-center gap-4 bg-white text-[#050505] px-12 py-5 rounded-full text-[12px] tracking-[0.25em] uppercase font-bold hover:bg-[#D4AF37] hover:text-[#050505] transition-all duration-700 shadow-[0_0_40px_rgba(255,255,255,0.1)] overflow-hidden">
-                <span className="relative z-10">Experience the Collection</span>
-                <svg className="relative z-10 w-4 h-4 transition-transform duration-500 group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                </svg>
-              </Link>
-            </motion.div>
+
           </motion.div>
         ) : (
-          <div className="relative z-50 text-center px-6 max-w-5xl mt-[-20vh] opacity-100">
+          <div className="absolute top-[14vh] md:top-[16vh] left-1/2 -translate-x-1/2 w-full z-50 text-center px-4 max-w-5xl opacity-100">
              <div className="mb-8">
               <div className="flex items-center justify-center gap-6 mb-4">
                  <div className="h-px w-16 bg-gradient-to-r from-transparent to-[#D4AF37]/60" />
@@ -303,6 +296,22 @@ export default function Home() {
               a fragrance.
             </h1>
           </div>
+        )}
+
+        {isMounted && (
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }} 
+            animate={{ opacity: 1, x: 0 }} 
+            transition={{ delay: 2.2, duration: 1 }} 
+            className="absolute bottom-8 md:bottom-12 right-6 md:right-12 z-50 flex justify-end"
+          >
+            <Link href="/shop" className="group relative inline-flex items-center gap-4 bg-white/5 backdrop-blur-md border border-white/20 text-white px-10 py-4 rounded-full text-[10px] tracking-[0.25em] uppercase font-light hover:bg-[#D4AF37] hover:text-[#050505] hover:border-[#D4AF37] transition-all duration-700 shadow-[0_0_30px_rgba(0,0,0,0.5)] overflow-hidden">
+              <span className="relative z-10">Experience the Collection</span>
+              <svg className="relative z-10 w-4 h-4 transition-transform duration-500 group-hover:translate-x-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+              </svg>
+            </Link>
+          </motion.div>
         )}
 
         <motion.div initial={{ scaleY: 0, opacity: 0 }} animate={{ scaleY: 1, opacity: 0.3 }} transition={{ delay: 2.5, duration: 1.5 }} className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center origin-top">
