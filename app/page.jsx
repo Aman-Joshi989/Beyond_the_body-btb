@@ -208,7 +208,13 @@ export default function Home() {
     setCategories(getCategories());
     setSettings(getHeroSettings());
 
-    const handleSync = () => setSettings(getHeroSettings());
+    const handleSync = () => {
+      setSettings(getHeroSettings());
+      const updatedProducts = getProducts();
+      const updatedFeatured = updatedProducts.filter(p => p.isHero);
+      setProducts(updatedFeatured.length > 0 ? updatedFeatured : updatedProducts.slice(0, 3));
+      setCategories(getCategories());
+    };
     window.addEventListener('storage', handleSync);
     return () => window.removeEventListener('storage', handleSync);
   }, []);

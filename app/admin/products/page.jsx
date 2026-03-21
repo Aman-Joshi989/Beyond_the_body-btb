@@ -360,11 +360,20 @@ export default function ProductsPage() {
                       <div className="grid md:grid-cols-3 gap-8 items-start">
                         <div className="md:col-span-2 space-y-6">
                           <div>
-                            <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-2.5 ml-1">Asset Path</label>
-                            <input value={form.img} onChange={(e) => setForm({ ...form, img: e.target.value })}
-                              placeholder="/bottles/example.png"
-                              className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl px-5 py-3.5 text-white text-sm outline-none focus:border-[#D4AF37]/40 transition-all font-mono" />
-                            <p className="text-[9px] text-white/20 mt-2 ml-1 italic italic italic">Recommended: 800x1200 Transparent PNG</p>
+                            <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-2.5 ml-1">Product Image</label>
+                            <input type="file" accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files[0];
+                                if (file) {
+                                  const reader = new FileReader();
+                                  reader.onloadend = () => {
+                                    setForm({ ...form, img: reader.result });
+                                  };
+                                  reader.readAsDataURL(file);
+                                }
+                              }}
+                              className="w-full bg-white/[0.03] border border-white/[0.08] rounded-2xl px-5 py-[9px] text-white text-sm outline-none focus:border-[#D4AF37]/40 transition-all font-mono file:mr-4 file:py-1.5 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:tracking-widest file:uppercase file:bg-[#D4AF37] file:text-black hover:file:bg-[#e8c44a] cursor-pointer" />
+                            <p className="text-[9px] text-white/20 mt-2 ml-1 italic">Upload image (Transparent PNG recommended)</p>
                           </div>
                           <div>
                             <label className="text-[10px] tracking-[0.2em] uppercase text-white/30 block mb-2.5 ml-1">Vessel Volume</label>
